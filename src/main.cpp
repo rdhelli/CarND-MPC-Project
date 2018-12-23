@@ -11,6 +11,7 @@
 
 // for convenience
 using json = nlohmann::json;
+using namespace std;
 
 // For converting back and forth between radians and degrees.
 constexpr double pi() { return M_PI; }
@@ -70,8 +71,6 @@ int main() {
 
   // MPC is initialized here!
   MPC mpc;
-  size_t iters = 50;
-  const double delay = 0.1; // 100 ms
 
   h.onMessage([&mpc](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                      uWS::OpCode opCode) {
@@ -108,12 +107,14 @@ int main() {
           const double epsi = - atan(coeffs[1]);
           
           // Future forward simulation
+          const double delay = 0.1; // 100 ms
+          const double Lf = 2.67;
           double x_fut = v * delay;
           double y_fut = 0;
-          double psi_fut = -v * delta * delay / mpc.Lf;
+          double psi_fut = -v * delta * delay / Lf;
           double v_fut = v + a * delay;
           double cte_fut = cte + v * sin(epsi) * delay;
-          double epsi_fut = epsi + v * delta * delay / mpc.Lf;
+          double epsi_fut = epsi + v * delta * delay / Lf;
           
           Eigen::VectorXd state(6);
           state << x_fut, y_fut, psi_fut, v_fut, cte_fut, epsi_fut;

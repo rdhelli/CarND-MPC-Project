@@ -13,7 +13,7 @@ double dt = 0.1;
 const double Lf = 2.67;
 
 // reference speed
-double ref_v = 40;
+double ref_v = 70;
 
 // index position of variables in the var vector
 size_t x_start = 0;
@@ -99,17 +99,17 @@ class FG_eval {
 MPC::MPC() {}
 MPC::~MPC() {}
 
-vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
+std::vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   bool ok = true;
   size_t i;
   typedef CPPAD_TESTVECTOR(double) Dvector;
 
-  double x = x0[0];
-  double y = x0[1];
-  double psi = x0[2];
-  double v = x0[3];
-  double cte = x0[4];
-  double epsi = x0[5];
+  double x = state[0];
+  double y = state[1];
+  double psi = state[2];
+  double v = state[3];
+  double cte = state[4];
+  double epsi = state[5];
 
   // Set the number of model variables (states & inputs)
   size_t n_vars = N * 6 + (N - 1) * 2;
