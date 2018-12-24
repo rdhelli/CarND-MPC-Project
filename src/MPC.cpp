@@ -212,7 +212,7 @@ std::vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
           // solution.x[cte_start + 1], solution.x[epsi_start + 1],
           // solution.x[delta_start],   solution.x[a_start]};
   
-  vector<double> sol;
+  std::vector<double> sol;
   sol.push_back(solution.x[delta_start]);
   sol.push_back(solution.x[a_start]);
   for (int i = 0; i < N-1; i++) {
