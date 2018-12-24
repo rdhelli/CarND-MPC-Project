@@ -13,7 +13,7 @@ double dt = 0.1;
 const double Lf = 2.67;
 
 // reference speed
-double ref_v = 80;
+double ref_v = 60;
 
 // index position of variables in the var vector
 size_t x_start = 0;
@@ -36,7 +36,7 @@ class FG_eval {
     // fg: vector of cost constraints
     // vars: vector of variable values (state & actuators)
     fg[0] = 0;
-    const int w_cte = 2000, w_epsi = 2000, w_refv = 2;
+    const int w_cte = 2000, w_epsi = 2000, w_refv = 1;
     const int w_delta = 20, w_a = 30;
     const int w_ddelta = 100, w_da = 20;
     // Reference State Cost
