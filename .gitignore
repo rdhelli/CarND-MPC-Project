@@ -4,3 +4,5 @@ tags
 .editorconfig
 .DS_Store
 Ipopt-3.12.7
+ipopt.rb
+mumps.rb
