@@ -13,7 +13,7 @@ double dt = 0.1;
 const double Lf = 2.67;
 
 // reference speed
-double ref_v = 70;
+double ref_v = 50;
 
 // index position of variables in the var vector
 size_t x_start = 0;
@@ -36,21 +36,24 @@ class FG_eval {
     // fg: vector of cost constraints
     // vars: vector of variable values (state & actuators)
     fg[0] = 0;
+    const int w_cte = 2000, w_epsi = 2000, w_refv = 1;
+    const int w_delta = 20, w_a = 30;
+    const int w_ddelta = 100, w_da = 20;
     // Reference State Cost
     for (int t = 0; t < N; t++) {
-      fg[0] += CppAD::pow(vars[cte_start + t], 2);
-      fg[0] += CppAD::pow(vars[epsi_start + t], 2);
-      fg[0] += CppAD::pow(vars[v_start + t] - ref_v, 2);
+      fg[0] += w_cte * CppAD::pow(vars[cte_start + t], 2);
+      fg[0] += w_epsi * CppAD::pow(vars[epsi_start + t], 2);
+      fg[0] += w_refv * CppAD::pow(vars[v_start + t] - ref_v, 2);
     }
     // Minimize the use of actuators.
     for (int t = 0; t < N - 1; t++) {
-      fg[0] += CppAD::pow(vars[delta_start + t], 2);
-      fg[0] += CppAD::pow(vars[a_start + t], 2);
+      fg[0] += w_delta * CppAD::pow(vars[delta_start + t], 2);
+      fg[0] += w_a * CppAD::pow(vars[a_start + t], 2);
     }
     // Minimize the value gap between sequential actuations.
     for (int t = 0; t < N - 2; t++) {
-      fg[0] += CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
-      fg[0] += CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
+      fg[0] += w_ddelta * CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
+      fg[0] += w_da * CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
     }
 
    // Initial constraints
@@ -85,7 +88,7 @@ class FG_eval {
 
       fg[1 + x_start + t] = x1 - (x0 + v0 * CppAD::cos(psi0) * dt);
       fg[1 + y_start + t] = y1 - (y0 + v0 * CppAD::sin(psi0) * dt);
-      fg[1 + psi_start + t] = psi1 - (psi0 + v0 / Lf * delta0 * dt);
+      fg[1 + psi_start + t] = psi1 - (psi0 - v0 / Lf * delta0 * dt);
       fg[1 + v_start + t] = v1 - (v0 + a0 * dt);
       fg[1 + cte_start + t] = cte1 - (f0 - y0 + v0 * CppAD::sin(epsi0) * dt);
       fg[1 + epsi_start + t] = epsi1 - (psi0 - psides0 + v0 * delta0 / Lf * dt);
@@ -204,8 +207,18 @@ std::vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   // Cost
   auto cost = solution.obj_value;
   std::cout << "Cost " << cost << std::endl;
-  return {solution.x[x_start + 1],   solution.x[y_start + 1],
-          solution.x[psi_start + 1], solution.x[v_start + 1],
-          solution.x[cte_start + 1], solution.x[epsi_start + 1],
-          solution.x[delta_start],   solution.x[a_start]};
+  // return {solution.x[x_start + 1],   solution.x[y_start + 1],
+          // solution.x[psi_start + 1], solution.x[v_start + 1],
+          // solution.x[cte_start + 1], solution.x[epsi_start + 1],
+          // solution.x[delta_start],   solution.x[a_start]};
+  
+  vector<double> result;
+  result.push_back(solution.x[delta_start]);
+  result.push_back(solution.x[a_start]);
+  for (int i = 0; i < N-1; i++) {
+    result.push_back(solution.x[x_start + i + 1]);
+    result.push_back(solution.x[y_start + i + 1]);
+  }
+  
+  return result;
 }
